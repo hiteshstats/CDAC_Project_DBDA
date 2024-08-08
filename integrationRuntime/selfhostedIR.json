@@ -1,0 +1,7 @@
+{
+	"name": "selfhostedIR",
+	"properties": {
+		"type": "SelfHosted",
+		"description": "on-premise to ADF"
+	}
+}
