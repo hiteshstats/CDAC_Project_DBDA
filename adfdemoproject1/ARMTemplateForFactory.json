@@ -1,0 +1,486 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfdemoproject1"
+		},
+		"ADLS_ProjectDemo_LS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS_ProjectDemo_LS'"
+		},
+		"MongoDB_money_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MongoDB_money_LS'"
+		},
+		"MongoDb_Bank_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MongoDb_Bank_LS'"
+		},
+		"MongoDb_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MongoDb_LS'"
+		},
+		"ADLS_ProjectDemo_LS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://hiteshadls.dfs.core.windows.net/"
+		},
+		"MongoDB_money_LS_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "money_laundering"
+		},
+		"MongoDb_Bank_LS_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "Bank_DB"
+		},
+		"MongoDb_LS_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "projectdemo"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Data Ingestion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data Ingestion",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MongoDbV2Source",
+								"batchSize": 100
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "MongoDB_local",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "sampledataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-08-02T19:25:01Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/MongoDB_local')]",
+				"[concat(variables('factoryId'), '/datasets/sampledataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_Ingestion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Mongo_to_ADLS",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MongoDbV2Source",
+								"batchSize": 100
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Mongo_Bank_DS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Bank_parquet_DS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Mongo_Bank_DS')]",
+				"[concat(variables('factoryId'), '/datasets/Bank_parquet_DS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mongo_to_adls')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MongoDbV2Source",
+								"batchSize": 100
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "MongoDB_money_DS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet_money_launderingDS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-08-07T12:30:25Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/MongoDB_money_DS')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet_money_launderingDS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Bank_parquet_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_ProjectDemo_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Bank_Data/Raw_Data",
+						"fileSystem": "landing"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDB_local')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoDb_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbV2Collection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "sampledata"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoDb_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDB_money_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoDB_money_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbV2Collection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "Hi_transactions"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoDB_money_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Mongo_Bank_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoDb_Bank_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbV2Collection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "credit_score"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoDb_Bank_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet_money_launderingDS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_ProjectDemo_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Raw_Data",
+						"fileSystem": "landing"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/money_launderingCSV_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_ProjectDemo_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Raw_Data",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sampledataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_ProjectDemo_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "sampledata",
+						"fileSystem": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_ProjectDemo_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_ProjectDemo_LS_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ADLS_ProjectDemo_LS_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDB_money_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MongoDbV2",
+				"typeProperties": {
+					"connectionString": "[parameters('MongoDB_money_LS_connectionString')]",
+					"database": "[parameters('MongoDB_money_LS_properties_typeProperties_database')]"
+				},
+				"connectVia": {
+					"referenceName": "selfhostedIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/selfhostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDb_Bank_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MongoDbV2",
+				"typeProperties": {
+					"connectionString": "[parameters('MongoDb_Bank_LS_connectionString')]",
+					"database": "[parameters('MongoDb_Bank_LS_properties_typeProperties_database')]"
+				},
+				"connectVia": {
+					"referenceName": "selfhostedIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/selfhostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDb_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MongoDbV2",
+				"typeProperties": {
+					"connectionString": "[parameters('MongoDb_LS_connectionString')]",
+					"database": "[parameters('MongoDb_LS_properties_typeProperties_database')]"
+				},
+				"connectVia": {
+					"referenceName": "selfhostedIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/selfhostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/selfhostedIR')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"description": "on-premise to ADF",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		}
+	]
+}

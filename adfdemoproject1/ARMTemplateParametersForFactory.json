@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adfdemoproject1"
+		},
+		"ADLS_ProjectDemo_LS_accountKey": {
+			"value": ""
+		},
+		"MongoDB_money_LS_connectionString": {
+			"value": ""
+		},
+		"MongoDb_Bank_LS_connectionString": {
+			"value": ""
+		},
+		"MongoDb_LS_connectionString": {
+			"value": ""
+		},
+		"ADLS_ProjectDemo_LS_properties_typeProperties_url": {
+			"value": "https://hiteshadls.dfs.core.windows.net/"
+		},
+		"MongoDB_money_LS_properties_typeProperties_database": {
+			"value": "money_laundering"
+		},
+		"MongoDb_Bank_LS_properties_typeProperties_database": {
+			"value": "Bank_DB"
+		},
+		"MongoDb_LS_properties_typeProperties_database": {
+			"value": "projectdemo"
+		}
+	}
+}
