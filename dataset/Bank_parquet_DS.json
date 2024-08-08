@@ -1,0 +1,20 @@
+{
+	"name": "Bank_parquet_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_ProjectDemo_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Bank_Data/Raw_Data",
+				"fileSystem": "landing"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

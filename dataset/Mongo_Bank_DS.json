@@ -1,0 +1,15 @@
+{
+	"name": "Mongo_Bank_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MongoDb_Bank_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "MongoDbV2Collection",
+		"schema": [],
+		"typeProperties": {
+			"collection": "credit_score"
+		}
+	}
+}
