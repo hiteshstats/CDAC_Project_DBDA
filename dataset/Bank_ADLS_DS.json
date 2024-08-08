@@ -1,0 +1,134 @@
+{
+	"name": "Bank_ADLS_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_ProjectDemo_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "creditscore.parquet",
+				"folderPath": "Bank_Data/Raw_Data",
+				"fileSystem": "landing"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "Customer_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "Month",
+				"type": "UTF8"
+			},
+			{
+				"name": "Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Age",
+				"type": "UTF8"
+			},
+			{
+				"name": "SSN",
+				"type": "UTF8"
+			},
+			{
+				"name": "Occupation",
+				"type": "UTF8"
+			},
+			{
+				"name": "Annual_Income",
+				"type": "UTF8"
+			},
+			{
+				"name": "Monthly_Inhand_Salary",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "Num_Bank_Accounts",
+				"type": "INT64"
+			},
+			{
+				"name": "Num_Credit_Card",
+				"type": "INT64"
+			},
+			{
+				"name": "Interest_Rate",
+				"type": "INT64"
+			},
+			{
+				"name": "Num_of_Loan",
+				"type": "UTF8"
+			},
+			{
+				"name": "Type_of_Loan",
+				"type": "UTF8"
+			},
+			{
+				"name": "Delay_from_due_date",
+				"type": "INT64"
+			},
+			{
+				"name": "Num_of_Delayed_Payment",
+				"type": "UTF8"
+			},
+			{
+				"name": "Changed_Credit_Limit",
+				"type": "UTF8"
+			},
+			{
+				"name": "Num_Credit_Inquiries",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "Credit_Mix",
+				"type": "UTF8"
+			},
+			{
+				"name": "Outstanding_Debt",
+				"type": "UTF8"
+			},
+			{
+				"name": "Credit_Utilization_Ratio",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "Credit_History_Age",
+				"type": "UTF8"
+			},
+			{
+				"name": "Payment_of_Min_Amount",
+				"type": "UTF8"
+			},
+			{
+				"name": "Total_EMI_per_month",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "Amount_invested_monthly",
+				"type": "UTF8"
+			},
+			{
+				"name": "Payment_Behaviour",
+				"type": "UTF8"
+			},
+			{
+				"name": "Monthly_Balance",
+				"type": "UTF8"
+			},
+			{
+				"name": "Credit_Score",
+				"type": "UTF8"
+			}
+		]
+	}
+}

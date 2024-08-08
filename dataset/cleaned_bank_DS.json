@@ -1,0 +1,23 @@
+{
+	"name": "cleaned_bank_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_ProjectDemo_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "Bank_Data/silver/@{formatDateTime(utcNow(),'yyyy')}/@{formatDateTime(utcNow(),'MM')}/@{formatDateTime(utcNow())}",
+					"type": "Expression"
+				},
+				"fileSystem": "landing"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
