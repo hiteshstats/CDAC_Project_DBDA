@@ -1,2 +1,7 @@
 # CDAC_Project_DBDA
-This is a group project for final project submission of PG-DBDA CDAC. Credit score prediction based on transaction and account details
+- Credit score prediction based on transaction and account details.
+- Tool Stack : Azure Cloud, Azure Data Factory,Databricks, PySpark, MongoDB
+- Data was ingested from mongoDB (on-premises) to Azure Data Lake Storage
+- ETL was Performed using Data Flow Activity
+- Data was cleaned and made ready for predictive analysis
+- Databricks was connected to ADLS and cleaned data was used for prediction of credit score
