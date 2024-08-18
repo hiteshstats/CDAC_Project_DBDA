@@ -214,6 +214,104 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ETL_pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Mongo_ADLS_ETL",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MongoDbV2Source",
+								"batchSize": 100
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Mongo_Bank_DS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "credit_etl_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DataFlow_ETL",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Mongo_ADLS_ETL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_etl",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"ADLS": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Mongo_Bank_DS')]",
+				"[concat(variables('factoryId'), '/datasets/credit_etl_parquet')]",
+				"[concat(variables('factoryId'), '/dataflows/dataflow_etl')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/mongo_to_adls')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -546,6 +644,144 @@
 					"compressionCodec": "snappy"
 				},
 				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/credit_etl_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_ProjectDemo_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "staging",
+						"fileSystem": "landing"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "ID",
+						"type": "UTF8"
+					},
+					{
+						"name": "Customer_ID",
+						"type": "UTF8"
+					},
+					{
+						"name": "Month",
+						"type": "UTF8"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Age",
+						"type": "UTF8"
+					},
+					{
+						"name": "SSN",
+						"type": "UTF8"
+					},
+					{
+						"name": "Occupation",
+						"type": "UTF8"
+					},
+					{
+						"name": "Annual_Income",
+						"type": "UTF8"
+					},
+					{
+						"name": "Monthly_Inhand_Salary",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "Num_Bank_Accounts",
+						"type": "INT64"
+					},
+					{
+						"name": "Num_Credit_Card",
+						"type": "INT64"
+					},
+					{
+						"name": "Interest_Rate",
+						"type": "INT64"
+					},
+					{
+						"name": "Num_of_Loan",
+						"type": "UTF8"
+					},
+					{
+						"name": "Type_of_Loan",
+						"type": "UTF8"
+					},
+					{
+						"name": "Delay_from_due_date",
+						"type": "INT64"
+					},
+					{
+						"name": "Num_of_Delayed_Payment",
+						"type": "UTF8"
+					},
+					{
+						"name": "Changed_Credit_Limit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Num_Credit_Inquiries",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "Credit_Mix",
+						"type": "UTF8"
+					},
+					{
+						"name": "Outstanding_Debt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Credit_Utilization_Ratio",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "Credit_History_Age",
+						"type": "UTF8"
+					},
+					{
+						"name": "Payment_of_Min_Amount",
+						"type": "UTF8"
+					},
+					{
+						"name": "Total_EMI_per_month",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "Amount_invested_monthly",
+						"type": "UTF8"
+					},
+					{
+						"name": "Payment_Behaviour",
+						"type": "UTF8"
+					},
+					{
+						"name": "Monthly_Balance",
+						"type": "UTF8"
+					},
+					{
+						"name": "Credit_Score",
+						"type": "UTF8"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLS_ProjectDemo_LS')]"
@@ -904,6 +1140,219 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Bank_ADLS_DS')]",
+				"[concat(variables('factoryId'), '/datasets/cleaned_bank_DS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_etl')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "credit_etl_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "cleaned_bank_DS",
+								"type": "DatasetReference"
+							},
+							"name": "ADLS"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "select3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ID as string,",
+						"          Customer_ID as string,",
+						"          Month as string,",
+						"          Name as string,",
+						"          Age as string,",
+						"          SSN as string,",
+						"          Occupation as string,",
+						"          Annual_Income as string,",
+						"          Monthly_Inhand_Salary as double,",
+						"          Num_Bank_Accounts as long,",
+						"          Num_Credit_Card as long,",
+						"          Interest_Rate as long,",
+						"          Num_of_Loan as string,",
+						"          Type_of_Loan as string,",
+						"          Delay_from_due_date as long,",
+						"          Num_of_Delayed_Payment as string,",
+						"          Changed_Credit_Limit as string,",
+						"          Num_Credit_Inquiries as double,",
+						"          Credit_Mix as string,",
+						"          Outstanding_Debt as string,",
+						"          Credit_Utilization_Ratio as double,",
+						"          Credit_History_Age as string,",
+						"          Payment_of_Min_Amount as string,",
+						"          Total_EMI_per_month as double,",
+						"          Amount_invested_monthly as string,",
+						"          Payment_Behaviour as string,",
+						"          Monthly_Balance as string,",
+						"          Credit_Score as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet',",
+						"     wildcardPaths:['staging']) ~> source1",
+						"source1 derive(Age1 = iif(endsWith(toString(Age), '_'), substring(toString(Age), 1, length(toString(Age)) - 1),toString(Age)),",
+						"          Occupation1 = replace(Occupation, '_______', ''),",
+						"          Annual_Income1 = iif(endsWith(toString(Annual_Income), '_'), substring(toString(Annual_Income), 1, length(toString(Annual_Income))- 1),toString(Annual_Income)),",
+						"          Num_of_Loan1 = iif(endsWith(toString(Num_of_Loan), '_'), substring(toString(Num_of_Loan), 1, length(toString(Num_of_Loan)) - 1),toString(Num_of_Loan)),",
+						"          Num_of_Delayed_Payment1 = iif(endsWith(toString(Num_of_Delayed_Payment), '_'), substring(toString(Num_of_Delayed_Payment), 1, length(toString(Num_of_Delayed_Payment)) - 1),Num_of_Delayed_Payment),",
+						"          Changed_Credit_Limit1 = iif(endsWith(toString(Changed_Credit_Limit), '_'), substring(toString(Changed_Credit_Limit), 1, length(toString(Changed_Credit_Limit)) - 1),toString(Changed_Credit_Limit)),",
+						"          Credit_Mix1 = iif(endsWith(toString(Credit_Mix), '_'), substring(toString(Credit_Mix), 1, length(toString(Credit_Mix)) - 1),toString(Credit_Mix)),",
+						"          Outstanding_Debt1 = iif(endsWith(toString(Outstanding_Debt), '_'), substring(toString(Outstanding_Debt), 1, length(toString(Outstanding_Debt)) - 1),toString(Outstanding_Debt)),",
+						"          Amount_invested_monthly1 = toFloat(replace(Amount_invested_monthly, '_', '')),",
+						"          Monthly_Balance1 = toFloat(replace(Monthly_Balance, '_', '')),",
+						"          Payment_Behaviour1 = iif(startsWith(Payment_Behaviour, '!'), toString(null()), Payment_Behaviour)) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          ID,",
+						"          Customer_ID,",
+						"          Month,",
+						"          Name,",
+						"          SSN,",
+						"          Monthly_Inhand_Salary,",
+						"          Num_Bank_Accounts,",
+						"          Num_Credit_Card,",
+						"          Interest_Rate,",
+						"          Type_of_Loan,",
+						"          Delay_from_due_date,",
+						"          Num_Credit_Inquiries,",
+						"          Credit_Utilization_Ratio,",
+						"          Credit_History_Age,",
+						"          Payment_of_Min_Amount,",
+						"          Total_EMI_per_month,",
+						"          Credit_Score,",
+						"          Age1,",
+						"          Occupation1,",
+						"          Annual_Income1,",
+						"          Num_of_Loan1,",
+						"          Num_of_Delayed_Payment1,",
+						"          Changed_Credit_Limit1,",
+						"          Credit_Mix1,",
+						"          Outstanding_Debt1,",
+						"          Amount_invested_monthly1,",
+						"          Monthly_Balance1,",
+						"          Payment_Behaviour1",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 derive(Age2 = iif(toInteger(Age1) > 125, toInteger(null()), toInteger(Age1)),",
+						"          Changed_Credit_Limit2 = toFloat(replace(Changed_Credit_Limit1, '-', ''))) ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          ID,",
+						"          Customer_ID,",
+						"          Month,",
+						"          Name,",
+						"          SSN,",
+						"          Monthly_Inhand_Salary,",
+						"          Num_Bank_Accounts,",
+						"          Num_Credit_Card,",
+						"          Interest_Rate,",
+						"          Type_of_Loan,",
+						"          Delay_from_due_date,",
+						"          Num_Credit_Inquiries,",
+						"          Credit_Utilization_Ratio,",
+						"          Credit_History_Age,",
+						"          Payment_of_Min_Amount,",
+						"          Total_EMI_per_month,",
+						"          Credit_Score,",
+						"          Occupation1,",
+						"          Annual_Income1,",
+						"          Num_of_Loan1,",
+						"          Num_of_Delayed_Payment1,",
+						"          Credit_Mix1,",
+						"          Outstanding_Debt1,",
+						"          Amount_invested_monthly1,",
+						"          Monthly_Balance1,",
+						"          Payment_Behaviour1,",
+						"          Age2,",
+						"          Changed_Credit_Limit2",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select2 derive(Age3 = iif(toInteger(Age2)<0,toInteger(null()),toInteger(Age2)),",
+						"          Num_Bank_Accounts1 = abs(toInteger(Num_Bank_Accounts)),",
+						"          Num_of_Loan2 = iif(toInteger(Num_of_Loan1)<0,toInteger(null()),toInteger(Num_of_Loan1)),",
+						"          Delay_from_due_date1 = abs(Delay_from_due_date),",
+						"          Num_of_Delayed_Payment2 = abs(toInteger(Num_of_Delayed_Payment1))) ~> derivedColumn3",
+						"derivedColumn3 select(mapColumn(",
+						"          ID,",
+						"          Customer_ID,",
+						"          Month,",
+						"          Name,",
+						"          Age3,",
+						"          SSN,",
+						"          Monthly_Inhand_Salary,",
+						"          Num_Bank_Accounts1,",
+						"          Delay_from_due_date1,",
+						"          Num_Credit_Card,",
+						"          Interest_Rate,",
+						"          Type_of_Loan,",
+						"          Num_Credit_Inquiries,",
+						"          Credit_Utilization_Ratio,",
+						"          Credit_History_Age,",
+						"          Payment_of_Min_Amount,",
+						"          Total_EMI_per_month,",
+						"          Occupation1,",
+						"          Annual_Income1,",
+						"          Credit_Mix1,",
+						"          Outstanding_Debt1,",
+						"          Num_of_Delayed_Payment2,",
+						"          Num_of_Loan2,",
+						"          Amount_invested_monthly1,",
+						"          Monthly_Balance1,",
+						"          Payment_Behaviour1,",
+						"          Changed_Credit_Limit2,",
+						"          Credit_Score",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"select3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> ADLS"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/credit_etl_parquet')]",
 				"[concat(variables('factoryId'), '/datasets/cleaned_bank_DS')]"
 			]
 		}
