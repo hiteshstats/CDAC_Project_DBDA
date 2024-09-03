@@ -13,4 +13,4 @@
 * By leveraging this diverse set of features, the goal is to build a robust predictive model that provides accurate credit scores. This model will assist financial institutions in making informed decisions, reducing the risk of loan defaults, and offering tailored financial products to customers based on their risk profiles
 
 ## Architecture Design
-![Alt Text].(https://github.com/hiteshstats/CDAC_Project_DBDA/blob/main/Architecture%20Design.png?raw=true)
+![Alt Text](https://github.com/hiteshstats/CDAC_Project_DBDA/blob/main/Architecture%20Design.png?raw=true)
