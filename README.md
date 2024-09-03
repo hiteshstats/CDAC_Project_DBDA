@@ -1,4 +1,4 @@
-# CDAC_Project_DBDA
+# Credit Score Predictor : System that Predicts Customer Credit Scores based on Financial Data
 - Credit score prediction based on transaction and account details.
 - Tool Stack : Azure Cloud, Azure Data Factory,Databricks, PySpark, MongoDB
 - Data was ingested from mongoDB (on-premises) to Azure Data Lake Storage
